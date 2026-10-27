@@ -35,11 +35,6 @@ node = "24.16"
 # APP=<name> on a command still wins over it.
 APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
 
-# Proves everything works on one known-good app.
-[tasks."demo"]
-description = "Prove everything works on rspack-react (install, build, verify)"
-run = "APP=rspack-react mise run app:verify"
-
 # Makes a new app in examples/ from one of Lunora's 14 templates. Checked on 2026-10-27:
 #   - Works with these commands: tanstack-start-react, tanstack-start-react-rspack, rspack-react
 #     and tanstack-start-solid. The other templates have the right scripts but haven't been tried.
@@ -89,6 +84,37 @@ depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
 
+# The end-of-turn check for Claude. After every Claude turn, a hook in .claude/settings.json runs this.
+# If the app's lunora/ folder changed, it checks the app for errors, and Claude has to fix them.
+# If nothing changed, it does nothing. (Lunora's own Claude plugin has a check like this, but it only
+# works when Claude is started inside the app's folder, not from the top of this repo.)
+[tasks."app:check"]
+description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). APP=<name>"
+dir = "{{config_root}}/examples/{{env.APP}}"
+run = """
+if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
+# A fresh clone has no generated code yet, and verify fails without it: build once first.
+[ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
+# verify typechecks against lunora/_generated but doesn't rewrite it. Without a dev server
+# running, that code is from before your change, so regenerate it first.
+pnpm codegen >&2
+pnpm lunora verify
+"""
+
+# Lunora's MCP server for the app, which .mcp.json starts for Claude: the Lunora docs, plus the
+# app's functions, tables, queries and dev-server logs. Read-only. The app tools need
+# app:dev running; the docs tools don't. `raw` keeps mise from touching the stdio it talks over.
+# Not `depends = ["app:install"]`: install's output would land on that stdio. So on a fresh
+# clone it installs first, inline, with the output sent to stderr.
+[tasks."app:mcp"]
+description = "Lunora MCP server for the app (Claude starts this via .mcp.json). APP=<name>"
+dir = "{{config_root}}/examples/{{env.APP}}"
+raw = true
+run = """
+[ -d node_modules ] || pnpm install >&2
+exec pnpm exec lunora mcp serve
+"""
+
 # Checks the Lunora version matches in every place listed at the top.
 [tasks."apps:versions"]
 description = "Fail if lunorash differs between mise.toml and any app in examples/"
@@ -115,28 +141,7 @@ description = "Run app:verify on every app in examples/. Runs apps:versions firs
 depends = ["apps:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
 
-# The end-of-turn check for Claude. After every Claude turn, a hook in .claude/settings.json runs this.
-# If the app's lunora/ folder changed, it checks the app for errors, and Claude has to fix them.
-# If nothing changed, it does nothing. (Lunora's own Claude plugin has a check like this, but it only
-# works when Claude is started inside the app's folder, not from the top of this repo.)
-[tasks."app:check"]
-description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). APP=<name>"
-dir = "{{config_root}}/examples/{{env.APP}}"
-run = """
-if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
-# A fresh clone has no generated code yet, and verify fails without it: build once first.
-[ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
-# verify typechecks against lunora/_generated but doesn't rewrite it. Without a dev server
-# running, that code is from before your change, so regenerate it first.
-pnpm codegen >&2
-pnpm lunora verify
-"""
-
-# Lunora's MCP server for the app, which .mcp.json starts for Claude: the Lunora docs, plus the
-# app's functions, tables, queries and dev-server logs. Read-only. The app tools need
-# app:dev running; the docs tools don't. `raw` keeps mise from touching the stdio it talks over.
-[tasks."app:mcp"]
-description = "Lunora MCP server for the app (Claude starts this via .mcp.json). APP=<name>"
-dir = "{{config_root}}/examples/{{env.APP}}"
-raw = true
-run = "pnpm exec lunora mcp serve"
+# Proves everything works on one known-good app.
+[tasks."demo"]
+description = "Prove everything works on rspack-react (install, build, verify)"
+run = "APP=rspack-react mise run app:verify"
