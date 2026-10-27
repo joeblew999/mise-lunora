@@ -1,61 +1,37 @@
 [tools]
 node = "24.16"
 pnpm = "11.15.0"
-# Exact alpha pin: npm's `latest` tag for lunorash is a 0.0.1 placeholder.
-"npm:lunorash" = "1.0.0-alpha.437"
+"npm:lunorash" = "1.0.0-alpha.437" # exact: npm's `latest` is a 0.0.1 placeholder
 "npm:wrangler" = "4.153.0"
 
 [env]
-# The Lunora app the app:* tasks work on. Override per run: APP=examples/other mise run app:verify
-APP = "{{ get_env(name='APP', default='examples/vite-react') }}"
-# lunora init template for app:create. Empty = the default (Vite + React). See: lunora init --help
-TEMPLATE = "{{ get_env(name='TEMPLATE', default='') }}"
+APP = "{{ get_env(name='APP', default='examples/vite-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
-# app:* tasks, in the order you use them. Each one depends on the step before it,
-# so running a later step runs everything it needs first.
-
-[tasks."app:create"]
-description = "Scaffold $APP with lunora init, using $TEMPLATE (empty = default)"
-run = 'cd "$(dirname "$APP")" && lunora init "$(basename "$APP")" ${TEMPLATE:+-t "$TEMPLATE"} -y'
+# In order. Each step runs the one before it.
 
 [tasks."app:install"]
-description = "Install exactly what the lockfile says (plain install only for a fresh app with no lockfile yet)"
 dir = "{{config_root}}/{{env.APP}}"
-run = 'if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi'
+run = "pnpm install"
 
 [tasks."app:generate"]
-description = "Generate lunora/_generated (build needs it; verify does not write it)"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."app:build"]
-description = "Build the app"
 depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
-run = "pnpm run --if-present build"   # not every template has a build script (standalone has none)
+run = "pnpm build"
 
 [tasks."app:verify"]
-description = "Check wrangler.jsonc, codegen and types (lunora verify); after build, which writes framework files like TanStack's routeTree.gen.ts"
 depends = ["app:build"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
-[tasks."app:serve"]
-description = "Run the dev server (it also runs codegen)"
+[tasks."app:dev"]
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
 
-# apps:* tasks run an app:* task on every app in examples/.
-
 [tasks."apps:verify"]
-description = "Run app:verify on every app in examples/"
-run = '''
-fail=0
-for d in examples/*/; do
-  echo "=== ${d%/}"
-  APP="${d%/}" mise run app:verify || fail=1
-done
-exit $fail
-'''
+run = "for d in examples/*/; do APP=${d%/} mise run app:verify || exit 1; done"
