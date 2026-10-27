@@ -1,83 +1,90 @@
+# This file sets up the tools and the commands for trying out Lunora example apps.
+# Each app lives in its own folder in examples/. You work on one at a time.
+#
+# How to use it:
+#   1. Pick the app:          APP=rspack-react   (default: tanstack-start-react)
+#   2. Check it works:        APP=rspack-react mise run app:verify
+#      That runs install, then build, then verify, in that order.
+#   3. Or run it:             APP=rspack-react mise run app:dev
+#   New app? Make it first:   APP=<name> mise run app:create
+#   Just want to see it work: mise run demo
+#
+# `mise tasks` lists every command.
+
+# The tools. mise installs these; the apps bring everything else themselves.
 [tools]
 node = "24.16"
-"npm:pnpm" = "11.15.0" # from npm, like the rest: the GitHub build's attestation check fails in Claude cloud sessions
-"npm:lunorash" = "1.0.0-alpha.437" # exact: npm's `latest` is a 0.0.1 placeholder
-# This lunorash runs only `app:create`; build, verify and dev use each app's own copy.
-# The same version is in three kinds of place; bump them all together, and `mise run apps:versions`
-# (run by apps:verify) fails if any differs:
-# - here
-# - the plugin tag (lunorash@<version>) in .claude/settings.json
-# - "lunorash" in each examples/<app>/package.json (then pnpm install there)
-# .claude/install-plugin.sh installs the plugin when Claude starts (Mac or cloud).
-# Its end-of-turn `lunora verify` hook only fires when Claude is started inside examples/<app>,
-#   so the Stop hook in .claude/settings.json runs `app:check` (below) instead.
-# No wrangler here: each app brings and locks its own, and that one builds, runs dev and deploys.
+# pnpm comes from npm because the GitHub download fails a security check in Claude cloud sessions.
+"npm:pnpm" = "11.15.0"
+# The Lunora command (`lunora`). Pinned exactly: on npm, "latest" is an empty 0.0.1 placeholder.
+# This copy is only used to create apps (app:create). Once an app exists, it uses its own copy.
+#
+# When you upgrade Lunora, change the version in all of these places, then run pnpm install in each app:
+#   - here
+#   - the plugin version (lunorash@<version>) in .claude/settings.json
+#   - "lunorash" in each examples/<app>/package.json
+# `mise run apps:versions` tells you if any of them don't match.
+"npm:lunorash" = "1.0.0-alpha.437"
+# No wrangler (Cloudflare's tool) here on purpose: each app installs its own, and uses that one.
 
 [env]
-# The one setting: APP is the template name, which is also the app's folder in examples/.
+# Which app the commands work on. It's the Lunora template name, and also the folder name in examples/.
 APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
 
-# One way: APP=<name> mise run app:verify   (or app:dev). <name> is a Lunora template name.
-# If examples/<name> doesn't exist yet, run APP=<name> mise run app:create first.
-# `mise run demo` runs it, to prove it works.
-
+# Proves everything works on one known-good app.
 [tasks."demo"]
 description = "APP=rspack-react mise run app:verify"
 run = "APP=rspack-react mise run app:verify"
 
-# Every task here is common: the same call into every app in examples/.
-# Templates (lunora init -t, from anolilab/lunora templates/, 14 in all), checked 2026-10-27:
-# - 12 have dev, build, codegen and deploy, so they fit these tasks.
-# - standalone has no build (a Worker only); expo has no dev or build (Expo's own tooling). Don't add them.
-# - Proven (install, build, verify, with build running codegen itself): tanstack-start-react,
-#   tanstack-start-react-rspack, rspack-react, and tanstack-start-solid (created and checked, not kept).
-#   The rest are untested: check build runs codegen first.
-# - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
-
+# Makes a new app in examples/ from one of Lunora's 14 templates. Checked on 2026-10-27:
+#   - Works with these commands: tanstack-start-react, tanstack-start-react-rspack, rspack-react
+#     and tanstack-start-solid. The other templates have the right scripts but haven't been tried.
+#   - Don't use standalone (it can't build) or expo (it uses its own tools instead).
+#   - Always pick a template. Plain `lunora init` makes a different kind of app.
 [tasks."app:create"]
 description = "Create examples/<APP> from the Lunora template of that name. Common. APP=tanstack-start-solid"
 dir = "{{config_root}}/examples"
 run = 'lunora init "$APP" -t "$APP" -y'
 
-# The chain, in order: install → build → verify. Each runs the one before it. (app:dev needs only install.)
-# install: everything needs node_modules.
-# build: runs codegen itself in every app in examples/, and writes framework files (TanStack's routeTree.gen.ts).
-# verify: after build; it fails without the generated code (lunora/_generated, and TanStack's
-#   routeTree.gen.ts), which only build writes.
-# What the same call runs differs per app: build is lunora codegen + vite build (tanstack-start-react)
-#   or rsbuild build, whose Lunora plugin runs codegen (the rspack apps); dev is vite or rsbuild dev.
+# The main commands, in order: install, then build, then verify.
+# Each one runs the ones before it, so you only ever need to call the last one you want.
 
+# 1. Install: downloads the app's packages. Everything else needs this.
 [tasks."app:install"]
 description = "Install the app (pnpm install). Common. APP=<name>, default tanstack-start-react"
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm install"
 
+# 2. Build: builds the app. This also writes the app's generated code (Lunora's, and TanStack's routes).
 [tasks."app:build"]
 description = "Build the app (pnpm build, which also runs codegen). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm build"
 
+# 3. Verify: checks the app for errors. It needs the generated code, so it always builds first.
 [tasks."app:verify"]
 description = "Check the app (lunora verify). Runs app:install and app:build first. Common. APP=<name>"
 depends = ["app:build"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm lunora verify"
 
+# Runs the app on your machine so you can open it in a browser. Only needs install.
 [tasks."app:dev"]
 description = "Run the app's dev server (pnpm dev). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm dev"
 
-# Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
-
+# Rewrites Lunora's generated code, for example after you change lunora/schema.ts.
+# Build does this anyway; use this when you only want that step.
 [tasks."app:generate"]
 description = "Regenerate Lunora code after a schema change (pnpm codegen). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
 
+# Checks the Lunora version matches in every place listed at the top.
 [tasks."apps:versions"]
 description = "Fail if lunorash differs between mise.toml, the plugin tag and any app in examples/. Common"
 dir = "{{config_root}}"
@@ -97,16 +104,16 @@ console.log(`lunorash ${want} everywhere (${Object.keys(found).length + 1} place
 '
 '''
 
+# Runs verify on every app in examples/.
 [tasks."apps:verify"]
 description = "Run app:verify on every app in examples/. Runs apps:versions first. Common"
 depends = ["apps:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
 
-# The end-of-turn check. The Stop hook in .claude/settings.json runs it after every Claude turn, because
-# the plugin's own check only looks in the folder Claude started in (the repo root, which has no app).
-# Not in the chain: it does nothing when the app's lunora/ is unchanged, and otherwise only `lunora verify`,
-#   except on a fresh clone (no lunora/_generated), where it installs and builds once first.
-
+# The end-of-turn check for Claude. After every Claude turn, a hook in .claude/settings.json runs this.
+# If the app's lunora/ folder changed, it checks the app for errors, and Claude has to fix them.
+# If nothing changed, it does nothing. (Lunora's own Claude plugin has a check like this, but it only
+# works when Claude is started inside the app's folder, not from the top of this repo.)
 [tasks."app:check"]
 description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). Common. APP=<name>"
 dir = "{{config_root}}/examples/{{env.APP}}"
