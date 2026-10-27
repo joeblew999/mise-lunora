@@ -29,17 +29,17 @@ depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
-[tasks."app:verify"]
-description = "Check wrangler.jsonc, codegen and types (lunora verify)"
-depends = ["app:generate"]
-dir = "{{config_root}}/{{env.APP}}"
-run = "pnpm lunora verify"
-
 [tasks."app:build"]
 description = "Build the app"
-depends = ["app:verify"]
+depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
+
+[tasks."app:verify"]
+description = "Check wrangler.jsonc, codegen and types (lunora verify); after build, which writes framework files like TanStack's routeTree.gen.ts"
+depends = ["app:build"]
+dir = "{{config_root}}/{{env.APP}}"
+run = "pnpm lunora verify"
 
 [tasks."app:serve"]
 description = "Run the dev server (it also runs codegen)"
@@ -49,12 +49,18 @@ run = "pnpm dev"
 
 [tasks."app:check"]
 description = "End to end: start the dev server, wait for GET / to return 200, stop it"
-depends = ["app:build"]
+depends = ["app:verify"]
 dir = "{{config_root}}/{{env.APP}}"
 run = '''
 setsid pnpm dev > .check.log 2>&1 &
 pid=$!
-trap 'kill -- -$pid 2>/dev/null; rm -f .check.log' EXIT
+stop() {
+  # Stop the dev server's whole process group, found from the process holding the port.
+  port=${url##*:}; holder=$([ -n "$port" ] && lsof -ti "tcp:$port" 2>/dev/null | head -1)
+  pg=$([ -n "$holder" ] && ps -o pgid= -p "$holder" | tr -d ' ')
+  kill -- -"${pg:-$pid}" 2>/dev/null; rm -f .check.log
+}
+trap stop EXIT
 url=""
 for i in $(seq 1 60); do
   url=$(grep -oE 'http://localhost:[0-9]+' .check.log | head -1)
