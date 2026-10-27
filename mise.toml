@@ -22,7 +22,7 @@ run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
 # In order. Each step runs the one before it.
 # install: everything needs node_modules.
-# build: runs codegen itself in both apps, and writes framework files (TanStack's routeTree.gen.ts).
+# build: runs codegen itself in every app in examples/, and writes framework files (TanStack's routeTree.gen.ts).
 # verify: after build; type-checking before routeTree.gen.ts exists fails. Passes even with no
 #   generated code, so on its own it proves nothing.
 
@@ -32,7 +32,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm install"
 
 [tasks."app:build"]
-description = "Common: the app's build script, same name in every app; what it runs differs (tanstack-start-react: lunora codegen + vite build; rspack: rsbuild build, whose Lunora plugin runs codegen)"
+description = "Common: the app's build script, same name in every app; what it runs differs (tanstack-start-react: lunora codegen + vite build; the rspack apps: rsbuild build, whose Lunora plugin runs codegen)"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
@@ -44,7 +44,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "Common: the app's dev script, same name in every app; what it runs and its port differ (vite on 5173, rsbuild on 3000)"
+description = "Common: the app's dev script, same name in every app; what it runs and its port differ per app"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
