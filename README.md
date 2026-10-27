@@ -11,9 +11,8 @@ mise install
 mise tasks
 ```
 
-**Open in a Claude cloud session:** [claude.ai/code?repositories=joeblew999/mise-lunora](https://claude.ai/code?repositories=joeblew999/mise-lunora).
-The session must start with this repo attached (that link, the Code tab's repository picker, or
-`claude --cloud` from your clone). A session that starts empty and clones the repo later never runs
+**Claude cloud sessions:** the session must start with this repo attached: pick
+`joeblew999/mise-lunora` in the Code tab's repository picker, or run `claude --cloud` from your clone. A session that starts empty and clones the repo later never runs
 the start-up hooks below.
 
 Claude gets Lunora's plugin automatically: a start-up hook in `.claude/settings.json` installs it
