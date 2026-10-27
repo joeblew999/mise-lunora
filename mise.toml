@@ -2,7 +2,7 @@
 # Each app lives in its own folder in examples/. You work on one at a time.
 #
 # How to use it:
-#   1. Pick the app in mise.local.toml (see [env] below). Default: tanstack-start-react.
+#   1. Pick the app in mise.local.toml.
 #   2. Check it works:        mise run app:verify
 #      That runs install, then build, then verify, in that order.
 #   3. Or run it:             mise run app:dev
@@ -27,15 +27,7 @@ node = "24.16"
 "npm:lunorash" = "1.0.0-alpha.437"
 # No wrangler (Cloudflare's tool) here on purpose: each app installs its own, and uses that one.
 
-[env]
-# Which app the app:* tasks work on. It's the Lunora template name, and also the folder name in
-# examples/. Pick it in mise.local.toml, and only there (not committed; mise reads it automatically):
-#   [env]
-#   APP = "{{ get_env(name='APP', default='rspack-react') }}"
-# It matters because the parts nobody types a command for use it too: Claude's end-of-turn check
-# and the MCP server (which reads it when a Claude session starts; restart the session after a change).
-# Keep the get_env form: apps:verify and demo switch app by setting APP on their own commands.
-APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
+# Which app the app:* tasks work on (APP) is set in mise.local.toml, and only there.
 
 # Makes a new app in examples/ from one of Lunora's 14 templates. Checked on 2026-10-27:
 #   - Works with these commands: tanstack-start-react, tanstack-start-react-rspack, rspack-react

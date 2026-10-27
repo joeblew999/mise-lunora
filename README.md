@@ -3,9 +3,10 @@
 A harness for trying out [Lunora](https://github.com/anolilab/lunora) example apps the same way
 every time, so we learn what Lunora can do and how to use it. Keep it simple.
 
-`mise.toml` is the source of truth for everything the harness does: the tools, which app is
-current (`APP`), how to switch, and what each command does. It's a thin layer; each app's own
-`package.json` in `examples/` does the real work. `mise tasks` lists the commands.
+`mise.toml` is the source of truth for everything the harness does: the tools and what each
+command does. It's a thin layer; each app's own `package.json` in `examples/` does the real work.
+`mise tasks` lists the commands. The app you're working on is set in `mise.local.toml`; to
+switch, change the name there.
 
 This README is also Claude's instructions (`CLAUDE.md` just imports it).
 

@@ -1,8 +1,5 @@
 # Written by .claude/setup.sh: this machine's Lunora plugin install. Not shared.
 .claude/settings.local.json
 
-# The app you're working on (APP), for this machine only. See [env] in mise.toml.
-mise.local.toml
-
 # Written by `lunora advisor` in each app.
 examples/*/lunora.advisor.map.json

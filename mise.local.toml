@@ -1,0 +1,10 @@
+# The app you're working on. To switch, change the name below and nothing else.
+# It's the Lunora template name, and also the folder name in examples/.
+#
+# Every app:* task in mise.toml uses it, and so do the parts nobody types a command for:
+# Claude's end-of-turn check, and the MCP server (which reads it when a Claude session
+# starts, so start a new session after changing it).
+#
+# Keep the get_env(...) form: apps:verify and demo switch app by setting APP themselves.
+[env]
+APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
