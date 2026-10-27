@@ -14,7 +14,7 @@ Lunora's Claude plugin, then prints what is installed and ends with `setup OK` o
 `setup INCOMPLETE`. It is safe to run when everything is already there. Show the developer
 its output. Nothing in this repo works without it.
 
-Why by hand: the SessionStart hooks in `.claude/settings.json` only fire when Claude Code
+Why by hand: the SessionStart hook in `.claude/settings.json` only fires when Claude Code
 starts with this repo as its project (the Code tab's repo picker, or `claude` run in the
 clone). A session started from a claude.ai chat, including the phone app, never runs them.
 Chat is a normal way to work on this repo, so don't tell the developer to switch.
