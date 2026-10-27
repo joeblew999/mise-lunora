@@ -1,6 +1,6 @@
 [tools]
 node = "24.16"
-pnpm = "11.15.0"
+"npm:pnpm" = "11.15.0" # from npm, like the rest: the GitHub build's attestation check fails in Claude cloud sessions
 "npm:lunorash" = "1.0.0-alpha.437" # exact: npm's `latest` is a 0.0.1 placeholder
 # Lunora's Claude plugin is pinned to the matching tag (lunorash@1.0.0-alpha.437) in .claude/settings.json.
 # Bump both together. .claude/install-plugin.sh installs it when Claude starts (Mac or cloud).
