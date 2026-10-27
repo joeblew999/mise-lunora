@@ -7,14 +7,10 @@ mise holds only what is common to every app in `examples/`; each app's own `pack
 Everything that matters is in `mise.toml`.
 
 ```sh
-mise install
+sh .claude/setup.sh   # mise, the pinned tools, Lunora's Claude plugin; ends with "setup OK"
 mise tasks
 ```
 
-**Claude cloud sessions:** the session must start with this repo attached: pick
-`joeblew999/mise-lunora` in the Code tab's repository picker, or run `claude --cloud` from your clone. A session that starts empty and clones the repo later never runs
-the start-up hooks below.
-
-Claude gets Lunora's plugin automatically: a start-up hook in `.claude/settings.json` installs it
-for this repo (Mac or Claude cloud). Start Claude inside `examples/<app>` when working on an app,
-so the plugin's `lunora verify` check runs at the end of each turn.
+Works the same from the Mac, a Claude Code session, or a claude.ai chat (phone included).
+Claude Code sessions started with this repo as the project also run it automatically as a
+start-up hook; a chat session doesn't, so Claude runs it first (see `CLAUDE.md`).
