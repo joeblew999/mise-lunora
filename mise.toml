@@ -33,7 +33,7 @@ run = "pnpm codegen"
 description = "Build the app"
 depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
-run = "pnpm build"
+run = "pnpm run --if-present build"   # not every template has a build script (standalone has none)
 
 [tasks."app:verify"]
 description = "Check wrangler.jsonc, codegen and types (lunora verify); after build, which writes framework files like TanStack's routeTree.gen.ts"
