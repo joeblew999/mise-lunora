@@ -19,9 +19,9 @@ description = "Scaffold $APP with lunora init, using $TEMPLATE (empty = default)
 run = 'cd "$(dirname "$APP")" && lunora init "$(basename "$APP")" ${TEMPLATE:+-t "$TEMPLATE"} -y'
 
 [tasks."app:install"]
-description = "Install the app's dependencies from its lockfile"
+description = "Install exactly what the lockfile says (plain install only for a fresh app with no lockfile yet)"
 dir = "{{config_root}}/{{env.APP}}"
-run = "pnpm install"
+run = 'if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi'
 
 [tasks."app:generate"]
 description = "Generate lunora/_generated (build needs it; verify does not write it)"
@@ -52,16 +52,12 @@ description = "End to end: start the dev server, wait for GET / to return 200, s
 depends = ["app:verify"]
 dir = "{{config_root}}/{{env.APP}}"
 run = '''
-setsid pnpm dev > .check.log 2>&1 &
+# set -m puts the dev server in its own process group, so one kill stops it and its children.
+# (Portable: macOS has no setsid.)
+set -m
+pnpm dev > .check.log 2>&1 &
 pid=$!
-stop() {
-  # Stop the dev server's whole process group, found from the process holding the port.
-  port=${url##*:}; holder=$([ -n "$port" ] && lsof -ti "tcp:$port" 2>/dev/null | head -1)
-  pg=$([ -n "$holder" ] && ps -o pgid= -p "$holder" | tr -d ' ')
-  kill -- -"${pg:-$pid}" 2>/dev/null; rm -f .check.log
-}
-trap stop EXIT
-url=""
+trap 'kill -- -$pid 2>/dev/null; rm -f .check.log' EXIT
 for i in $(seq 1 60); do
   url=$(grep -oE 'http://localhost:[0-9]+' .check.log | head -1)
   [ -n "$url" ] && [ "$(curl -s -o /dev/null -w '%{http_code}' "$url/")" = "200" ] && { echo "OK: $url/ -> 200"; exit 0; }
