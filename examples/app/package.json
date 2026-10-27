@@ -1,0 +1,37 @@
+{
+    "name": "app",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "lint": "oxlint",
+        "preview": "vite preview",
+        "codegen": "lunora codegen",
+        "deploy": "lunora deploy"
+    },
+    "dependencies": {
+        "react": "^19.3.1",
+        "react-dom": "^19.3.1",
+        "lunorash": "1.0.0-alpha.437",
+        "@lunora/ratelimit": "1.0.0-alpha.173",
+        "@lunora/react": "1.0.0-alpha.266"
+    },
+    "devDependencies": {
+        "@types/node": "^24.19.2",
+        "@types/react": "^19.3.0",
+        "@types/react-dom": "^19.3.0",
+        "@vitejs/plugin-react": "^6.1.2",
+        "oxlint": "^1.88.0",
+        "typescript": "~6.0.3",
+        "vite": "^8.3.4",
+        "@lunora/vite": "1.0.0-alpha.389",
+        "@lunora/studio": "1.0.0-alpha.347",
+        "@cloudflare/workers-types": "^5.20261004.1",
+        "wrangler": "^4.147.0"
+    },
+    "imports": {
+        "#lunora/*": "./lunora/*"
+    }
+}
