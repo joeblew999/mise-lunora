@@ -2,10 +2,15 @@
 node = "24.16"
 "npm:pnpm" = "11.15.0" # from npm, like the rest: the GitHub build's attestation check fails in Claude cloud sessions
 "npm:lunorash" = "1.0.0-alpha.437" # exact: npm's `latest` is a 0.0.1 placeholder
-# Lunora's Claude plugin is pinned to the matching tag (lunorash@1.0.0-alpha.437) in .claude/settings.json.
-# Bump both together. .claude/install-plugin.sh installs it when Claude starts (Mac or cloud).
+# This lunorash runs only `app:create`; build, verify and dev use each app's own copy.
+# The same version is in three kinds of place; bump them all together, and `mise run apps:versions`
+# (run by apps:verify) fails if any differs:
+# - here
+# - the plugin tag (lunorash@<version>) in .claude/settings.json
+# - "lunorash" in each examples/<app>/package.json (then pnpm install there)
+# .claude/install-plugin.sh installs the plugin when Claude starts (Mac or cloud).
 # Its end-of-turn `lunora verify` hook only fires when Claude is started inside examples/<app>.
-"npm:wrangler" = "4.153.0"
+# No wrangler here: each app brings and locks its own, and that one builds, runs dev and deploys.
 
 [env]
 # The one setting: APP is the template name, which is also the app's folder in examples/.
@@ -71,6 +76,26 @@ depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
 
+[tasks."apps:versions"]
+description = "Fail if lunorash differs between mise.toml, the plugin tag and any app in examples/. Common"
+dir = "{{config_root}}"
+run = '''
+node -e '
+const fs = require("fs");
+const want = fs.readFileSync("mise.toml", "utf8").match(/"npm:lunorash" = "([^"]+)"/)[1];
+const found = { ".claude/settings.json (plugin tag)": (fs.readFileSync(".claude/settings.json", "utf8").match(/"lunorash@([^"]+)"/) || [])[1] };
+for (const app of fs.readdirSync("examples")) {
+    const pkg = `examples/${app}/package.json`;
+    if (fs.existsSync(pkg)) found[pkg] = JSON.parse(fs.readFileSync(pkg, "utf8")).dependencies?.lunorash;
+}
+const bad = Object.entries(found).filter(([, v]) => v !== want);
+for (const [where, v] of bad) console.error(`lunorash ${v ?? "missing"} in ${where}, mise.toml has ${want}`);
+if (bad.length) process.exit(1);
+console.log(`lunorash ${want} everywhere (${Object.keys(found).length + 1} places)`);
+'
+'''
+
 [tasks."apps:verify"]
 description = "Run app:verify on every app in examples/. Common"
+depends = ["apps:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
