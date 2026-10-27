@@ -9,6 +9,7 @@
     "SessionStart": [
       {
         "hooks": [
+          { "type": "command", "command": "sh \"$(git rev-parse --show-toplevel)/.claude/setup-tools.sh\"", "timeout": 600 },
           { "type": "command", "command": "sh \"$(git rev-parse --show-toplevel)/.claude/install-plugin.sh\"", "timeout": 180 }
         ]
       }
