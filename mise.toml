@@ -9,7 +9,8 @@ node = "24.16"
 # - the plugin tag (lunorash@<version>) in .claude/settings.json
 # - "lunorash" in each examples/<app>/package.json (then pnpm install there)
 # .claude/install-plugin.sh installs the plugin when Claude starts (Mac or cloud).
-# Its end-of-turn `lunora verify` hook only fires when Claude is started inside examples/<app>.
+# Its end-of-turn `lunora verify` hook only fires when Claude is started inside examples/<app>,
+#   so the Stop hook in .claude/settings.json runs `app:check` (below) instead.
 # No wrangler here: each app brings and locks its own, and that one builds, runs dev and deploys.
 
 [env]
@@ -29,7 +30,8 @@ run = "APP=rspack-react mise run app:verify"
 # - 12 have dev, build, codegen and deploy, so they fit these tasks.
 # - standalone has no build (a Worker only); expo has no dev or build (Expo's own tooling). Don't add them.
 # - Proven (install, build, verify, with build running codegen itself): tanstack-start-react,
-#   tanstack-start-react-rspack, rspack-react. The rest are untested: check build runs codegen first.
+#   tanstack-start-react-rspack, rspack-react, and tanstack-start-solid (created and checked, not kept).
+#   The rest are untested: check build runs codegen first.
 # - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
 
 [tasks."app:create"]
@@ -51,41 +53,27 @@ dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm install"
 
 [tasks."app:build"]
-description = "Build the app (pnpm build, which also runs codegen). Common. APP=<name>"
+description = "Build the app (pnpm build, which also runs codegen). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm build"
 
 [tasks."app:verify"]
-description = "Check the app (lunora verify). Common. APP=<name>"
+description = "Check the app (lunora verify). Runs app:install and app:build first. Common. APP=<name>"
 depends = ["app:build"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "Run the app's dev server (pnpm dev). Common. APP=<name>"
+description = "Run the app's dev server (pnpm dev). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm dev"
 
-# The end-of-turn check. The Stop hook in .claude/settings.json runs it after every Claude turn, because
-# the plugin's own check only looks in the folder Claude started in (the repo root, which has no app).
-# Quick: only `lunora verify`, no install or build, and nothing at all when the app's lunora/ is unchanged.
-
-[tasks."app:check"]
-description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). Common. APP=<name>"
-dir = "{{config_root}}/examples/{{env.APP}}"
-run = """
-if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
-# A fresh clone has no generated code yet, and verify fails without it: build once first.
-[ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
-pnpm lunora verify
-"""
-
 # Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
 
 [tasks."app:generate"]
-description = "Regenerate Lunora code after a schema change (pnpm codegen). Common. APP=<name>"
+description = "Regenerate Lunora code after a schema change (pnpm codegen). Runs app:install first. Common. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
@@ -110,6 +98,21 @@ console.log(`lunorash ${want} everywhere (${Object.keys(found).length + 1} place
 '''
 
 [tasks."apps:verify"]
-description = "Run app:verify on every app in examples/. Common"
+description = "Run app:verify on every app in examples/. Runs apps:versions first. Common"
 depends = ["apps:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
+
+# The end-of-turn check. The Stop hook in .claude/settings.json runs it after every Claude turn, because
+# the plugin's own check only looks in the folder Claude started in (the repo root, which has no app).
+# Not in the chain: it does nothing when the app's lunora/ is unchanged, and otherwise only `lunora verify`,
+#   except on a fresh clone (no lunora/_generated), where it installs and builds once first.
+
+[tasks."app:check"]
+description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). Common. APP=<name>"
+dir = "{{config_root}}/examples/{{env.APP}}"
+run = """
+if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
+# A fresh clone has no generated code yet, and verify fails without it: build once first.
+[ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
+pnpm lunora verify
+"""
