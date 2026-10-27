@@ -71,6 +71,9 @@ else
     echo "MISSING: mise"; ok=0
 fi
 
+echo "== current app (mise.local.toml)"
+mise exec -- sh -c 'echo "APP=$APP"'
+
 echo "== Lunora Claude plugin"
 if command -v claude >/dev/null 2>&1; then
     claude plugin list 2>/dev/null | grep -A3 'lunora@lunora' || { echo "MISSING: lunora@lunora"; ok=0; }
