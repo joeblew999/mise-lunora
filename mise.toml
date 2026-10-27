@@ -5,7 +5,7 @@
 #   1. Pick the app in mise.local.toml.
 #   2. Check it works:        mise run app:verify
 #      That runs install, then build, then verify, in that order.
-#   3. Or run it:             mise run app:dev   (in the background; stop it with app:stop)
+#   3. Or run it:             mise run app:dev
 #   New app? Pick its name in step 1, then: mise run app:create
 #   Just want to see it work: mise run global:demo
 #
@@ -68,18 +68,12 @@ dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm lunora verify"
 
 # Runs the app on your machine so you can open it in a browser (and Lunora Studio at /__lunora).
-# Lunora's managed background dev server: safe to run when it's already running, and in the
-# app's folder `pnpm lunora dev status` / `logs` show it. Only needs install.
+# Only needs install.
 [tasks."app:dev"]
-description = "Current app: start its dev server in the background (lunora dev --background). Runs app:install first"
+description = "Current app: run its dev server (pnpm dev). Runs app:install first"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
-run = "pnpm exec lunora dev --background"
-
-[tasks."app:stop"]
-description = "Current app: stop its background dev server (lunora dev stop)"
-dir = "{{config_root}}/examples/{{env.APP}}"
-run = "pnpm exec lunora dev stop"
+run = "pnpm dev"
 
 # Rewrites Lunora's generated code, for example after you change lunora/schema.ts.
 # Build does this anyway; use this when you only want that step.
@@ -108,17 +102,20 @@ pnpm lunora verify
 
 # Lunora's MCP server for the app, which .mcp.json starts for Claude: the Lunora docs, plus the
 # app's functions, tables, queries, logs, issues, advisories and query insights. Read-only.
-# It decides its tools once, at start: the logs/issues/advisories/insights ones only if the dev
-# server is already up. So it runs app:dev first (which installs too). That's not a `depends`,
-# because its output would land on the stdio the server talks over: it goes to stderr instead.
-# `raw` keeps mise from touching that stdio.
+# It decides its tools once, at start, and Claude Code gives it 30s to do that. Told the app's
+# address (--url), it offers all of them straight away; they work whenever app:dev is running.
+# Without it, it only offers logs/issues/advisories/insights if a dev server is already up.
+# The address is where app:dev serves the app: Vite's 5173, or Rsbuild's 3000.
+# Installs first on a fresh clone. Not a `depends`: its output would land on the stdio the
+# server talks over, so it goes to stderr. `raw` keeps mise from touching that stdio.
 [tasks."app:mcp"]
-description = "Current app: Lunora MCP server for it (Claude starts this via .mcp.json). Starts app:dev first"
+description = "Current app: Lunora MCP server for it (Claude starts this via .mcp.json)"
 dir = "{{config_root}}/examples/{{env.APP}}"
 raw = true
 run = """
-mise run app:dev >&2
-exec pnpm exec lunora mcp serve
+[ -d node_modules ] || pnpm install >&2
+if [ -f rsbuild.config.ts ]; then url=http://localhost:3000; else url=http://localhost:5173; fi
+exec pnpm exec lunora mcp serve --url "$url"
 """
 
 # ---- global:* tasks: every app, or a fixed one; mise.local.toml doesn't matter ----
