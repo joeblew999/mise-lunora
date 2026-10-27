@@ -19,9 +19,17 @@ starts with this repo as its project (the Code tab's repo picker, or `claude` ru
 clone). A session started from a claude.ai chat, including the phone app, never runs them.
 Chat is a normal way to work on this repo, so don't tell the developer to switch.
 
-In a chat session the plugin's skills and its end-of-turn check don't load. Read its
-skills from `~/.claude/plugins/cache/lunora/lunora/*/skills/` when needed, and run
-`lunora verify` in the app folder at the end of each turn.
+In a chat session the plugin's skills don't load. Read them from
+`~/.claude/plugins/cache/lunora/lunora/*/skills/` when needed.
+
+## End of every turn: check the app
+
+You work on one app at a time: `APP` in `mise.toml` names it (`examples/<APP>`). The Stop
+hook in `.claude/settings.json` runs `mise run app:check` after every turn: `lunora verify`
+in that app when its `lunora/` has changes, blocking the turn with the errors if it fails.
+The plugin's own check doesn't do this, since it only looks in the folder Claude started in.
+Hooks don't run in a chat session, so there run `APP=<name> mise run app:check` yourself
+at the end of each turn.
 
 ## Git
 

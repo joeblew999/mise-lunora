@@ -13,6 +13,13 @@
           { "type": "command", "command": "sh \"$(git rev-parse --show-toplevel)/.claude/install-plugin.sh\"", "timeout": 180 }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "grep -q '\"stop_hook_active\": *true' && exit 0; cd \"$(git rev-parse --show-toplevel)\" && PATH=\"$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH\" mise run app:check >&2 || exit 2", "timeout": 300 }
+        ]
+      }
     ]
   }
 }

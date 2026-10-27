@@ -68,6 +68,19 @@ depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm dev"
 
+# The end-of-turn check. The Stop hook in .claude/settings.json runs it after every Claude turn, because
+# the plugin's own check only looks in the folder Claude started in (the repo root, which has no app).
+# Quick: only `lunora verify`, no install or build, and nothing at all when the app's lunora/ is unchanged.
+
+[tasks."app:check"]
+description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). Common. APP=<name>"
+dir = "{{config_root}}/examples/{{env.APP}}"
+run = """
+if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
+[ -d node_modules ] || pnpm install
+pnpm lunora verify
+"""
+
 # Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
 
 [tasks."app:generate"]
