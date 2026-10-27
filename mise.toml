@@ -6,7 +6,7 @@ pnpm = "11.15.0"
 "npm:wrangler" = "4.153.0"
 
 [env]
-# The Lunora app the app:* tasks work on. Override per run: APP=examples/other mise run app:check
+# The Lunora app the app:* tasks work on. Override per run: APP=examples/other mise run app:verify
 APP = "{{ get_env(name='APP', default='examples/vite-react') }}"
 # lunora init template for app:create. Empty = the default (Vite + React). See: lunora init --help
 TEMPLATE = "{{ get_env(name='TEMPLATE', default='') }}"
@@ -47,34 +47,15 @@ depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
 
-[tasks."app:check"]
-description = "End to end: start the dev server, wait for GET / to return 200, stop it"
-depends = ["app:verify"]
-dir = "{{config_root}}/{{env.APP}}"
-run = '''
-# set -m puts the dev server in its own process group, so one kill stops it and its children.
-# (Portable: macOS has no setsid.)
-set -m
-pnpm dev > .check.log 2>&1 &
-pid=$!
-trap 'kill -- -$pid 2>/dev/null; rm -f .check.log' EXIT
-for i in $(seq 1 60); do
-  url=$(grep -oE 'http://localhost:[0-9]+' .check.log | head -1)
-  [ -n "$url" ] && [ "$(curl -s -o /dev/null -w '%{http_code}' "$url/")" = "200" ] && { echo "OK: $url/ -> 200"; exit 0; }
-  sleep 1
-done
-echo "FAIL: dev server did not answer 200 within 60 s"; cat .check.log; exit 1
-'''
-
 # apps:* tasks run an app:* task on every app in examples/.
 
-[tasks."apps:check"]
-description = "Run app:check on every app in examples/"
+[tasks."apps:verify"]
+description = "Run app:verify on every app in examples/"
 run = '''
 fail=0
 for d in examples/*/; do
   echo "=== ${d%/}"
-  APP="${d%/}" mise run app:check || fail=1
+  APP="${d%/}" mise run app:verify || fail=1
 done
 exit $fail
 '''

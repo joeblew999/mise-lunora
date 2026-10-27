@@ -6,11 +6,11 @@ tasks that run a Lunora app's steps in the right order. Inside an app it's stand
 
 ```sh
 mise install
-mise run app:check        # install → generate → verify → build → dev server answers 200
+mise run apps:verify      # every app in examples/: install → generate → build → verify
 ```
 
-The tasks work on `examples/app` (the untouched output of `lunora init app -y`). Point them at
-another app with `APP=examples/other mise run app:check`. `mise tasks` lists them alphabetically;
+The tasks work on `examples/vite-react` and `examples/tanstack-start-react` (the untouched output of `lunora init app -y`). Point them at
+another app with `APP=examples/other mise run app:verify`. `mise tasks` lists them alphabetically;
 the order and the reason for each step are in `mise.toml`, and each task depends on the one
 before it.
 
