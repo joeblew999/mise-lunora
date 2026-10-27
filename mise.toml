@@ -2,7 +2,7 @@
 # Each app lives in its own folder in examples/. You work on one at a time.
 #
 # How to use it:
-#   1. Pick the app:          APP=rspack-react   (default: tanstack-start-react)
+#   1. Pick the app:          APP=rspack-react   (default: tanstack-start-react, or the one in mise.local.toml)
 #   2. Check it works:        APP=rspack-react mise run app:verify
 #      That runs install, then build, then verify, in that order.
 #   3. Or run it:             APP=rspack-react mise run app:dev
@@ -28,11 +28,16 @@ node = "24.16"
 
 [env]
 # Which app the commands work on. It's the Lunora template name, and also the folder name in examples/.
+# To set the app you're working on for every command, including Claude's end-of-turn check,
+# put this in mise.local.toml (not committed; mise reads it automatically):
+#   [env]
+#   APP = "{{ get_env(name='APP', default='rspack-react') }}"
+# APP=<name> on a command still wins over it.
 APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
 
 # Proves everything works on one known-good app.
 [tasks."demo"]
-description = "APP=rspack-react mise run app:verify"
+description = "Prove everything works on rspack-react (install, build, verify)"
 run = "APP=rspack-react mise run app:verify"
 
 # Makes a new app in examples/ from one of Lunora's 14 templates. Checked on 2026-10-27:
@@ -41,7 +46,7 @@ run = "APP=rspack-react mise run app:verify"
 #   - Don't use standalone (it can't build) or expo (it uses its own tools instead).
 #   - Always pick a template. Plain `lunora init` makes a different kind of app.
 [tasks."app:create"]
-description = "Create examples/<APP> from the Lunora template of that name. Common. APP=tanstack-start-solid"
+description = "Create examples/<APP> from the Lunora template of that name. APP=tanstack-start-solid"
 dir = "{{config_root}}/examples"
 run = 'lunora init "$APP" -t "$APP" -y'
 
@@ -50,27 +55,27 @@ run = 'lunora init "$APP" -t "$APP" -y'
 
 # 1. Install: downloads the app's packages. Everything else needs this.
 [tasks."app:install"]
-description = "Install the app (pnpm install). Common. APP=<name>, default tanstack-start-react"
+description = "Install the app (pnpm install). APP=<name>, default tanstack-start-react"
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm install"
 
 # 2. Build: builds the app. This also writes the app's generated code (Lunora's, and TanStack's routes).
 [tasks."app:build"]
-description = "Build the app (pnpm build, which also runs codegen). Runs app:install first. Common. APP=<name>"
+description = "Build the app (pnpm build, which also runs codegen). Runs app:install first. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm build"
 
 # 3. Verify: checks the app for errors. It needs the generated code, so it always builds first.
 [tasks."app:verify"]
-description = "Check the app (lunora verify). Runs app:install and app:build first. Common. APP=<name>"
+description = "Check the app (lunora verify). Runs app:install and app:build first. APP=<name>"
 depends = ["app:build"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm lunora verify"
 
 # Runs the app on your machine so you can open it in a browser. Only needs install.
 [tasks."app:dev"]
-description = "Run the app's dev server (pnpm dev). Runs app:install first. Common. APP=<name>"
+description = "Run the app's dev server (pnpm dev). Runs app:install first. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm dev"
@@ -78,14 +83,14 @@ run = "pnpm dev"
 # Rewrites Lunora's generated code, for example after you change lunora/schema.ts.
 # Build does this anyway; use this when you only want that step.
 [tasks."app:generate"]
-description = "Regenerate Lunora code after a schema change (pnpm codegen). Runs app:install first. Common. APP=<name>"
+description = "Regenerate Lunora code after a schema change (pnpm codegen). Runs app:install first. APP=<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
 
 # Checks the Lunora version matches in every place listed at the top.
 [tasks."apps:versions"]
-description = "Fail if lunorash differs between mise.toml and any app in examples/. Common"
+description = "Fail if lunorash differs between mise.toml and any app in examples/"
 dir = "{{config_root}}"
 run = '''
 node -e '
@@ -105,7 +110,7 @@ console.log(`lunorash ${want} everywhere (${Object.keys(found).length + 1} place
 
 # Runs verify on every app in examples/.
 [tasks."apps:verify"]
-description = "Run app:verify on every app in examples/. Runs apps:versions first. Common"
+description = "Run app:verify on every app in examples/. Runs apps:versions first"
 depends = ["apps:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
 
@@ -114,7 +119,7 @@ run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1
 # If nothing changed, it does nothing. (Lunora's own Claude plugin has a check like this, but it only
 # works when Claude is started inside the app's folder, not from the top of this repo.)
 [tasks."app:check"]
-description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). Common. APP=<name>"
+description = "Verify the app if its lunora/ has uncommitted changes (the end-of-turn check). APP=<name>"
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = """
 if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi

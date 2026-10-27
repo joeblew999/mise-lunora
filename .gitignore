@@ -1,5 +1,5 @@
 # Written by .claude/setup.sh: this machine's Lunora plugin install. Not shared.
 .claude/settings.local.json
 
-# Throwaway fresh-clone tests
-/.test/
+# The app you're working on (APP), for this machine only. See [env] in mise.toml.
+mise.local.toml
