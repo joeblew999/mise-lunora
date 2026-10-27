@@ -10,28 +10,34 @@ APP = "{{ get_env(name='APP', default='examples/vite-react') }}" # APP=examples/
 # In order. Each step runs the one before it.
 
 [tasks."app:install"]
+description = "Common: pnpm install"
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm install"
 
 [tasks."app:generate"]
+description = "Common: the app's codegen script, lunora codegen in every app"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."app:build"]
+description = "App-specific: the app's own build script (vite-react: tsc + vite build; tanstack-start-react: lunora codegen + vite build)"
 depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
 
 [tasks."app:verify"]
+description = "Common: lunora verify, the same command in every Lunora app"
 depends = ["app:build"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
+description = "App-specific: the app's own dev script (vite in both apps so far)"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
 
 [tasks."apps:verify"]
+description = "Common: app:verify on every app in examples/"
 run = "for d in examples/*/; do APP=${d%/} mise run app:verify || exit 1; done"
