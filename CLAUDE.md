@@ -30,6 +30,13 @@ You work on one app at a time, named by `APP` (`examples/<APP>`). The default is
 `mise run app:check` after every turn and blocks the turn if the app has errors. Hooks
 don't run in a chat session, so there run `mise run app:check` yourself at the end of each turn.
 
+## Work inside this repo, never in a scratch folder
+
+Do all work in `examples/<APP>`, not in a temp or scratch folder elsewhere. mise's tools,
+the hooks and the MCP server only work inside this repo. Changing an example is fine, even
+to try something risky: `git checkout -- examples/<APP>` puts it back. A new app goes in
+`examples/` via `mise run app:create` (it refuses to overwrite an existing folder).
+
 ## Writing Lunora code: read the plugin's skill first
 
 Lunora's API is generated per app and changes between versions, so don't write from memory.
