@@ -19,15 +19,9 @@ description = "Common: pnpm install"
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm install"
 
-[tasks."app:generate"]
-description = "Common: the app's codegen script, lunora codegen in every app"
-depends = ["app:install"]
-dir = "{{config_root}}/{{env.APP}}"
-run = "pnpm codegen"
-
 [tasks."app:build"]
 description = "Common: the app's build script, same name in every app; what it runs differs (tanstack-start-react: lunora codegen + vite build; rspack: rsbuild build, whose Lunora plugin runs codegen)"
-depends = ["app:generate"]
+depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
 
@@ -42,6 +36,14 @@ description = "Common: the app's dev script, same name in every app; what it run
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
+
+# Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
+
+[tasks."app:generate"]
+description = "Common: the app's codegen script, lunora codegen in every app"
+depends = ["app:install"]
+dir = "{{config_root}}/{{env.APP}}"
+run = "pnpm codegen"
 
 [tasks."apps:verify"]
 description = "Common: app:verify on every app in examples/"

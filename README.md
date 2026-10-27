@@ -4,7 +4,7 @@ A small setup for trying out [Lunora](https://github.com/anolilab/lunora) exampl
 
 ```sh
 mise install
-mise run apps:verify                                         # every app in examples/: install → generate → build → verify
+mise run apps:verify                                         # every app in examples/: install → build → verify
 APP=examples/tanstack-start-react mise run app:dev           # run one app
 TEMPLATE=tanstack-start-react-rspack mise run app:create     # add another lunora init template to examples/
 ```
