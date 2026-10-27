@@ -20,7 +20,7 @@ node = "24.16"
 # pnpm comes from npm because the GitHub download fails a security check in Claude cloud sessions.
 "npm:pnpm" = "11.15.0"
 # The Lunora command (`lunora`). Pinned exactly: on npm, "latest" is an empty 0.0.1 placeholder.
-# This copy is only used to create apps (app:create). Once an app exists, it uses its own copy.
+# This copy creates apps (app:create) and runs the MCP server (app:mcp); otherwise each app uses its own.
 #
 # When you upgrade Lunora, change the version in all of these places, then run pnpm install in each app:
 #   - here (Lunora's Claude plugin uses this version too)
@@ -106,16 +106,15 @@ pnpm lunora verify
 # address (--url), it offers all of them straight away; they work whenever app:dev is running.
 # Without it, it only offers logs/issues/advisories/insights if a dev server is already up.
 # The address is where app:dev serves the app: Vite's 5173, or Rsbuild's 3000.
-# Installs first on a fresh clone. Not a `depends`: its output would land on the stdio the
-# server talks over, so it goes to stderr. `raw` keeps mise from touching that stdio.
+# It uses the lunora from [tools] (the same version as the app's), so it starts in seconds
+# without waiting for the app to install. `raw` keeps mise from touching the stdio it talks over.
 [tasks."app:mcp"]
 description = "Current app: Lunora MCP server for it (Claude starts this via .mcp.json)"
 dir = "{{config_root}}/examples/{{env.APP}}"
 raw = true
 run = """
-[ -d node_modules ] || pnpm install >&2
 if [ -f rsbuild.config.ts ]; then url=http://localhost:3000; else url=http://localhost:5173; fi
-exec pnpm exec lunora mcp serve --url "$url"
+exec lunora mcp serve --url "$url"
 """
 
 # ---- global:* tasks: every app, or a fixed one; mise.local.toml doesn't matter ----
