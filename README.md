@@ -1,15 +1,18 @@
 # mise-lunora
 
-Pinned tools for building apps with [Lunora](https://github.com/anolilab/lunora).
-mise gets you the tools; inside a project it's standard Lunora and `package.json` scripts.
+Pinned tools for building apps with [Lunora](https://github.com/anolilab/lunora), plus `app:*`
+tasks that run a Lunora app's steps in the right order. Inside an app it's standard Lunora and
+`package.json` scripts; the tasks only fix the order.
 
 ```sh
 mise install
-lunora init my-app -t standalone -y   # or another template: lunora init --help
-cd my-app
-pnpm install
-pnpm dev                              # pnpm codegen / pnpm deploy
+mise run app:check        # install → generate → verify → build → dev server answers 200
 ```
+
+The tasks work on `examples/app` (the untouched output of `lunora init app -y`). Point them at
+another app with `APP=examples/other mise run app:check`. `mise tasks` lists them alphabetically;
+the order and the reason for each step are in `mise.toml`, and each task depends on the one
+before it.
 
 The pins are exact on purpose. Lunora publishes alphas several times a day, and only under the
 `alpha` tag: npm's `latest` for `lunorash` is a `0.0.1` placeholder, so an unpinned install gets
