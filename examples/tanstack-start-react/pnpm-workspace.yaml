@@ -1,0 +1,17 @@
+# pnpm reads its settings from here (the package.json `pnpm` field is no longer read).
+# Pre-approve the toolchain's native build scripts so `pnpm install` runs them
+# without the interactive `pnpm approve-builds` step; deny the optional native
+# builds a scaffold doesn't need (so no C/C++ toolchain is required).
+allowBuilds:
+    '@parcel/watcher': true
+    'esbuild': true
+    'lmdb': true
+    'msgpackr-extract': true
+    'rs-module-lexer': true
+    'sharp': true
+    'unrs-resolver': true
+    'vue-demi': true
+    'workerd': true
+    'cpu-features': false
+    'protobufjs': false
+    'ssh2': false
