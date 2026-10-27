@@ -1,12 +1,15 @@
 # mise-lunora
 
-Pinned tools for playing with [Lunora](https://github.com/anolilab/lunora).
+A small setup for trying out [Lunora](https://github.com/anolilab/lunora) example apps the same way every time.
+
+mise pins the tools (Node, pnpm, the `lunora` CLI, wrangler) and runs the steps every Lunora app shares,
+in the right order. Each app's own `package.json` scripts do the rest.
 
 ```sh
 mise install
-mise run apps:verify                              # install → generate → build → verify, every app in examples/
-APP=examples/tanstack-start-react mise run app:dev
+mise run apps:verify                                         # every app in examples/: install → generate → build → verify
+APP=examples/tanstack-start-react mise run app:dev           # run one app
+TEMPLATE=tanstack-start-react-rspack mise run app:create     # add another lunora init template to examples/
 ```
 
-`examples/` holds apps made with `lunora init` (default template, and `-t tanstack-start-react`).
-New one: `cd examples && lunora init my-app -y`.
+`mise tasks` lists the steps. Why they run in this order: `docs/2026-10-27-01-checks.md`.

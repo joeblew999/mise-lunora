@@ -7,6 +7,11 @@ pnpm = "11.15.0"
 [env]
 APP = "{{ get_env(name='APP', default='examples/vite-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
+[tasks."app:create"]
+description = "Common: lunora init examples/$TEMPLATE using that template (TEMPLATE=sveltekit mise run app:create)"
+dir = "{{config_root}}/examples"
+run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
+
 # In order. Each step runs the one before it.
 
 [tasks."app:install"]
