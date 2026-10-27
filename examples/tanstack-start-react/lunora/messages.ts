@@ -40,26 +40,10 @@ export const list = query.input({ channelId: v.string().max(256), limit: v.optio
 });
 
 export const send = mutation
-    .input({ channelId: v.string().max(256), text: v.string().max(4096), author: v.optional(v.string().max(64)) })
+    .input({ channelId: v.string().max(256), text: v.string().max(4096) })
     .use(rateLimit(limiter, "send", byCaller))
     .mutation(async ({ args, ctx }) => {
-        const id = await ctx.db.insert("messages", { channelId: args.channelId, text: args.text, author: args.author });
+        const id = await ctx.db.insert("messages", { channelId: args.channelId, text: args.text });
 
         return { channelId: args.channelId, id, text: args.text };
-    });
-
-/** Deletes one message. No auth yet, so anyone can delete anything: fine for a demo, not for a deploy. */
-export const remove = mutation
-    .input({ channelId: v.string().max(256), id: v.id("messages") })
-    .use(rateLimit(limiter, "send", byCaller))
-    .mutation(async ({ args, ctx }) => {
-        const message = await ctx.db.get("messages", args.id);
-
-        if (!message || message.channelId !== args.channelId) {
-            return { removed: false };
-        }
-
-        await ctx.db.delete(args.id);
-
-        return { removed: true };
     });
