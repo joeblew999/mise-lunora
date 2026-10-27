@@ -20,8 +20,7 @@ node = "24.16"
 # This copy is only used to create apps (app:create). Once an app exists, it uses its own copy.
 #
 # When you upgrade Lunora, change the version in all of these places, then run pnpm install in each app:
-#   - here
-#   - the plugin version (lunorash@<version>) in .claude/settings.json
+#   - here (Lunora's Claude plugin uses this version too)
 #   - "lunorash" in each examples/<app>/package.json
 # `mise run apps:versions` tells you if any of them don't match.
 "npm:lunorash" = "1.0.0-alpha.437"
@@ -86,13 +85,13 @@ run = "pnpm codegen"
 
 # Checks the Lunora version matches in every place listed at the top.
 [tasks."apps:versions"]
-description = "Fail if lunorash differs between mise.toml, the plugin tag and any app in examples/. Common"
+description = "Fail if lunorash differs between mise.toml and any app in examples/. Common"
 dir = "{{config_root}}"
 run = '''
 node -e '
 const fs = require("fs");
 const want = fs.readFileSync("mise.toml", "utf8").match(/"npm:lunorash" = "([^"]+)"/)[1];
-const found = { ".claude/settings.json (plugin tag)": (fs.readFileSync(".claude/settings.json", "utf8").match(/"lunorash@([^"]+)"/) || [])[1] };
+const found = {};
 for (const app of fs.readdirSync("examples")) {
     const pkg = `examples/${app}/package.json`;
     if (fs.existsSync(pkg)) found[pkg] = JSON.parse(fs.readFileSync(pkg, "utf8")).dependencies?.lunorash;
