@@ -12,7 +12,7 @@
 #   3. installs Lunora's Claude plugin
 #
 # Hooks only fire when Claude Code starts with this repo as its project. A session
-# started from a claude.ai chat never runs them, so the agent runs this by hand (see CLAUDE.md).
+# started from a claude.ai chat never runs them, so the agent runs this by hand (see README.md).
 
 hook=; [ "$1" = "--hook" ] && hook=1
 warn() { echo "setup.sh: $1" >&2; }
