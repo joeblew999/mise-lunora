@@ -1,0 +1,8 @@
+{
+  "extraKnownMarketplaces": {
+    "lunora": {
+      "source": { "source": "github", "repo": "anolilab/lunora", "ref": "lunorash@1.0.0-alpha.437" }
+    }
+  },
+  "enabledPlugins": { "lunora@lunora": true }
+}

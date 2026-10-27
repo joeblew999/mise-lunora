@@ -2,6 +2,8 @@
 node = "24.16"
 pnpm = "11.15.0"
 "npm:lunorash" = "1.0.0-alpha.437" # exact: npm's `latest` is a 0.0.1 placeholder
+# Lunora's Claude plugin is pinned to the matching tag (lunorash@1.0.0-alpha.437) in .claude/settings.json.
+# Bump both together. Its end-of-turn `lunora verify` hook only fires when Claude works inside an app folder.
 "npm:wrangler" = "4.153.0"
 
 [env]
