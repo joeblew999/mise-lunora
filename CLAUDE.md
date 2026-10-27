@@ -24,11 +24,18 @@ It's safe to run again. It ends with `setup OK` or `setup INCOMPLETE`. Show the 
 
 ## End of every turn: check the app
 
-You work on one app at a time, named by `APP` (`examples/<APP>`). When the developer
-switches app, set it in `mise.local.toml` (see the `[env]` comment in `mise.toml`), so the
-end-of-turn check looks at the right one. In a Code session a Stop hook runs
+You work on one app at a time, named by `APP` (`examples/<APP>`). The default is
+`tanstack-start-react`. To work on any other app, first set it in `mise.local.toml` (see the
+`[env]` comment in `mise.toml`), so every command and the end-of-turn check use that app. In a Code session a Stop hook runs
 `mise run app:check` after every turn and blocks the turn if the app has errors. Hooks
 don't run in a chat session, so there run `mise run app:check` yourself at the end of each turn.
+
+## Writing Lunora code: read the plugin's skill first
+
+Lunora's API is generated per app and changes between versions, so don't write from memory.
+Before writing in an app's `lunora/` or its client code, load the skill the `lunora:lunora`
+skill routes you to (`lunora-functions` for schema and server functions, `lunora-realtime`
+for the client side) and follow it.
 
 ## Git
 
