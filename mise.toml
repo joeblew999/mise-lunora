@@ -21,6 +21,10 @@ dir = "{{config_root}}/examples"
 run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
 # In order. Each step runs the one before it.
+# install: everything needs node_modules.
+# build: runs codegen itself in both apps, and writes framework files (TanStack's routeTree.gen.ts).
+# verify: after build; type-checking before routeTree.gen.ts exists fails. Passes even with no
+#   generated code, so on its own it proves nothing.
 
 [tasks."app:install"]
 description = "Common: pnpm install"
