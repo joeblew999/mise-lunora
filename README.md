@@ -11,10 +11,12 @@ pnpm install
 pnpm dev                              # pnpm codegen / pnpm deploy
 ```
 
-The pins are exact on purpose. Lunora publishes alphas several times a day, and npm's `latest`
-tag for `lunorash` is a `0.0.1` placeholder, so an unpinned install gets nothing useful.
+The pins are exact on purpose. Lunora publishes alphas several times a day, and only under the
+`alpha` tag: npm's `latest` for `lunorash` is a `0.0.1` placeholder, so an unpinned install gets
+nothing useful.
 
 `lunora init` pins the project's `lunorash` to the same version as `mise.toml`. Keep the two
 in step when you upgrade: the project's scripts run their own copy.
 
-Note: `lunora --version` on 1.0.0-alpha.437 prints `alpha.439`. The installed package is 437.
+`lunora --version` prints the CLI package's own version, not `lunorash`'s. Each Lunora package is
+versioned separately: `lunorash@1.0.0-alpha.437` pins `@lunora/cli@1.0.0-alpha.439` exactly.
