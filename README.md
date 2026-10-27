@@ -23,7 +23,11 @@ The calls each task makes, and what they run in each app:
 | `app:generate` | `pnpm codegen` | lunora codegen | lunora codegen | lunora codegen |
 | `app:build` | `pnpm build` | tsc -b && vite build | lunora codegen && vite build | rsbuild build |
 | `app:verify` | `pnpm lunora verify` | same | same | same |
-| `app:dev` | `pnpm dev` | vite | vite | rsbuild dev |
+| `app:dev` | `pnpm dev` | vite (5173) | vite (5173) | rsbuild dev (3000) |
+| `app:create` | `lunora init <t> -t <t>` | not this way: `lunora init app -y` | yes | yes |
+
+`-t` templates come from `templates/` in the Lunora repo, at the ref matching the CLI version.
+The default app is different: Vite's own starter (`create-vite`) plus a Lunora layer.
 
 If a new template lacks one of these scripts, that task is not common for it: fix that before adding
 the template, rather than special-casing it in `mise.toml`.

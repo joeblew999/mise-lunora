@@ -8,7 +8,7 @@ pnpm = "11.15.0"
 APP = "{{ get_env(name='APP', default='examples/vite-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
 [tasks."app:create"]
-description = "Common: lunora init examples/$TEMPLATE using that template (TEMPLATE=sveltekit mise run app:create)"
+description = "Common for templates in anolilab/lunora templates/ (lunora init -t). Not vite-react: that is create-vite + a Lunora layer (lunora init app -y)"
 dir = "{{config_root}}/examples"
 run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
@@ -38,7 +38,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "Common: the app's dev script, same name in every app (vite in both so far)"
+description = "Common: the app's dev script, same name in every app; what it runs and its port differ (vite on 5173, rsbuild on 3000)"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
