@@ -9,7 +9,7 @@ sh .claude/setup.sh
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 ```
 
-It installs mise, the tools pinned in `mise.toml` (node, pnpm, lunora) and
+It installs mise, the tools pinned in `mise.toml` and
 Lunora's Claude plugin, then prints what is installed and ends with `setup OK` or
 `setup INCOMPLETE`. It is safe to run when everything is already there. Show the developer
 its output. Nothing in this repo works without it.

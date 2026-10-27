@@ -3,7 +3,7 @@
 #
 # Runs as a SessionStart hook (see .claude/settings.json), next to install-plugin.sh.
 # A Claude cloud session starts in a fresh container with no mise, so none of the
-# pinned tools (node, pnpm, lunora) exist and nothing in this repo runs.
+# tools in mise.toml exist and nothing in this repo runs.
 # On the Mac mise is already there, so this only runs `mise install` (a no-op when
 # everything is installed).
 #

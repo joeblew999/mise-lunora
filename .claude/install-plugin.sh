@@ -6,8 +6,8 @@
 # plugin declaration in cloud sessions, and on the Mac only names it after the trust
 # prompt without downloading it, so something has to install it.
 #
-# The pinned tag is read from .claude/settings.json (extraKnownMarketplaces.lunora),
-# so the version lives in one place. Installs at local scope: written to
+# The plugin version is read from .claude/settings.json (extraKnownMarketplaces.lunora).
+# It must be the same as lunorash in mise.toml: `mise run apps:versions` checks. Installs at local scope: written to
 # .claude/settings.local.json in this repo (not committed), never to ~/.claude/settings.json.
 # Quiet when there is nothing to do; never fails the session.
 
