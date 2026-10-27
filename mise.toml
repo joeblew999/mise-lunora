@@ -8,9 +8,9 @@ pnpm = "11.15.0"
 # The one setting: APP is the template name, which is also the app's folder in examples/.
 APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
 
-# How to use it, as a runnable demo (run it to prove it works). One way for everything:
-#   an app already in examples/:  APP=rspack-react mise run app:verify   (or app:dev)
-#   a template not there yet:     APP=tanstack-start-solid mise run app:create, then the same as above
+# One way: APP=<name> mise run app:verify   (or app:dev). <name> is a Lunora template name.
+# If examples/<name> doesn't exist yet, run APP=<name> mise run app:create first.
+# `mise run demo` runs it, to prove it works.
 
 [tasks."demo"]
 description = "APP=rspack-react mise run app:verify"
