@@ -16,7 +16,7 @@ APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP
 # - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
 
 [tasks."app:create"]
-description = "Common for templates in anolilab/lunora templates/ (lunora init -t)."
+description = "TEMPLATE=tanstack-start-solid mise run app:create → examples/tanstack-start-solid. Common for templates in anolilab/lunora templates/ (lunora init -t)"
 dir = "{{config_root}}/examples"
 run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
@@ -27,7 +27,7 @@ run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 #   generated code, so on its own it proves nothing.
 
 [tasks."app:install"]
-description = "Common: pnpm install"
+description = "APP=examples/<name> mise run app:install (APP defaults to examples/tanstack-start-react). Common: pnpm install"
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm install"
 
