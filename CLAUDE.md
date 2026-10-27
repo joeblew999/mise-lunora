@@ -1,62 +1,46 @@
 # CLAUDE.md
 
+A harness for trying out Lunora's example apps the same way every time. `mise.toml` is a thin
+layer that picks the app (`APP`) and calls it; each app's `package.json` does the real work.
+Keep the harness simple.
+
 ## Setup: automatic in a Code session
 
-In a Claude Code session (the Code tab's repo picker, or `claude` run in the clone) the
-SessionStart hook in `.claude/settings.json` runs `.claude/setup.sh` before your first turn.
-It installs mise, the tools pinned in `mise.toml` and Lunora's Claude plugin. You can tell it
-worked: the `lunora:*` skills are in your skill list and `mise` is on your PATH. Then there is
-nothing to do. Don't run the setup again.
+In a Claude Code session the SessionStart hook runs `.claude/setup.sh` before your first turn:
+mise, the tools in `mise.toml`, and Lunora's Claude plugin. It worked if the `lunora:*` skills
+are in your skill list. Then don't run it again.
 
-Run it by hand only when:
-- the `lunora:*` skills are missing. That means a claude.ai chat session (including the phone
-  app), where hooks never fire. Chat is a normal way to work on this repo, so don't tell the
-  developer to switch. In chat the plugin's skills don't load either: read them from
-  `~/.claude/plugins/cache/lunora/lunora/*/skills/` when needed.
-- `mise.toml` changed during the session (for example after a pull), so new tools get installed.
+Run it by hand only if those skills are missing (a claude.ai chat or the phone app, where hooks
+never fire; that's a normal way to work here, so don't tell the developer to switch), or if
+`mise.toml` changed mid-session:
 
 ```sh
 sh .claude/setup.sh
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 ```
 
-It's safe to run again. It ends with `setup OK` or `setup INCOMPLETE`. Show the developer its output.
+It ends with `setup OK` or `setup INCOMPLETE`; show the developer its output. In chat, read the
+plugin's skills from `~/.claude/plugins/cache/lunora/lunora/*/skills/`.
+
+## Working on an app
+
+- One app at a time: `examples/<APP>`, default `tanstack-start-react`. For another app, set
+  `APP` in `mise.local.toml` first (see `[env]` in `mise.toml`). `mise tasks` lists the commands.
+- Work only in `examples/<APP>`, never in a scratch folder: mise, the hooks and the MCP server
+  only work inside this repo. Changing an example is fine; `git checkout -- examples/<APP>`
+  undoes it. `mise run app:create` refuses to overwrite an existing app.
+- Don't write Lunora code from memory. Load the skill `lunora:lunora` routes you to first
+  (`lunora-functions` for `lunora/`, `lunora-realtime` for the client).
+- Lunora's MCP server (`.mcp.json`, read-only, Code sessions only) has the `lunora_*` tools:
+  `lunora_search_docs` for the docs, and `lunora_list_functions`, `lunora_run_query`,
+  `lunora_dev_logs` and `lunora_explain_error` to look at the real app. The app tools need
+  `mise run app:dev` running in the background.
 
 ## End of every turn: check the app
 
-You work on one app at a time, named by `APP` (`examples/<APP>`). The default is
-`tanstack-start-react`. To work on any other app, first set it in `mise.local.toml` (see the
-`[env]` comment in `mise.toml`), so every command and the end-of-turn check use that app. In a Code session a Stop hook runs
-`mise run app:check` after every turn and blocks the turn if the app has errors. Hooks
-don't run in a chat session, so there run `mise run app:check` yourself at the end of each turn.
-
-## Work inside this repo, never in a scratch folder
-
-Do all work in `examples/<APP>`, not in a temp or scratch folder elsewhere. mise's tools,
-the hooks and the MCP server only work inside this repo. Changing an example is fine, even
-to try something risky: `git checkout -- examples/<APP>` puts it back. A new app goes in
-`examples/` via `mise run app:create` (it refuses to overwrite an existing folder).
-
-## Writing Lunora code: read the plugin's skill first
-
-Lunora's API is generated per app and changes between versions, so don't write from memory.
-Before writing in an app's `lunora/` or its client code, load the skill the `lunora:lunora`
-skill routes you to (`lunora-functions` for schema and server functions, `lunora-realtime`
-for the client side) and follow it.
-
-## Lunora's MCP server: docs and the running app
-
-`.mcp.json` starts Lunora's MCP server (`mise run app:mcp`) for the current app. Its tools
-are named `lunora_*`. Use them:
-- `lunora_search_docs` / `lunora_get_doc`: Lunora's current docs, for anything the skills
-  don't cover.
-- `lunora_list_functions`, `lunora_list_tables`, `lunora_run_query`, `lunora_dev_logs`: look
-  at the real app instead of guessing. These need the dev server, so start
-  `mise run app:dev` in the background first.
-- `lunora_explain_error`: what a Lunora error code means.
-
-It's read-only. In a chat session it isn't loaded: run `lunora` CLI commands in the app's folder instead.
+In a Code session a Stop hook runs `mise run app:check`, which verifies the app if its
+`lunora/` changed, and blocks the turn on errors. In chat, run it yourself.
 
 ## Git
 
-Always commit straight to `main` and push. No branches, no pull requests.
+Commit straight to `main` and push when it works. No branches, no pull requests.
