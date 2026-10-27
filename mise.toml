@@ -5,24 +5,16 @@ pnpm = "11.15.0"
 "npm:wrangler" = "4.153.0"
 
 [env]
-APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP=examples/tanstack-start-react mise run app:dev
+# The one setting: APP is the template name, which is also the app's folder in examples/.
+APP = "{{ get_env(name='APP', default='tanstack-start-react') }}"
 
-# The two ways to use this repo, as runnable demos. Run both to prove they work.
-# 1. An app already in examples/: set APP to its folder.
-# 2. A template not in examples/ yet: set TEMPLATE to its name, then use it like 1.
+# How to use it, as a runnable demo (run it to prove it works). One way for everything:
+#   an app already in examples/:  APP=rspack-react mise run app:verify   (or app:dev)
+#   a template not there yet:     APP=tanstack-start-solid mise run app:create, then the same as above
 
-[tasks."demo:existing-app"]
-description = "Way 1: APP=examples/rspack-react mise run app:verify"
-run = "APP=examples/rspack-react mise run app:verify"
-
-[tasks."demo:new-template"]
-description = "Way 2: TEMPLATE=tanstack-start-solid mise run app:create, then app:verify on it; removes it afterwards"
-dir = "{{config_root}}"
-run = """
-trap 'rm -rf examples/tanstack-start-solid' EXIT
-TEMPLATE=tanstack-start-solid mise run app:create
-APP=examples/tanstack-start-solid mise run app:verify
-"""
+[tasks."demo"]
+description = "APP=rspack-react mise run app:verify"
+run = "APP=rspack-react mise run app:verify"
 
 # Every task here is common: the same call into every app in examples/.
 # Templates (lunora init -t, from anolilab/lunora templates/, 14 in all), checked 2026-10-27:
@@ -33,9 +25,9 @@ APP=examples/tanstack-start-solid mise run app:verify
 # - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
 
 [tasks."app:create"]
-description = "Create examples/<template> from a Lunora template. Common. TEMPLATE=tanstack-start-solid mise run app:create"
+description = "Create examples/<APP> from the Lunora template of that name. Common. APP=tanstack-start-solid"
 dir = "{{config_root}}/examples"
-run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
+run = 'lunora init "$APP" -t "$APP" -y'
 
 # The chain, in order: install → build → verify. Each runs the one before it. (app:dev needs only install.)
 # install: everything needs node_modules.
@@ -46,36 +38,36 @@ run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 #   or rsbuild build, whose Lunora plugin runs codegen (the rspack apps); dev is vite or rsbuild dev.
 
 [tasks."app:install"]
-description = "Install the app (pnpm install). Common. APP=examples/<name>, default tanstack-start-react"
-dir = "{{config_root}}/{{env.APP}}"
+description = "Install the app (pnpm install). Common. APP=<name>, default tanstack-start-react"
+dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm install"
 
 [tasks."app:build"]
-description = "Build the app (pnpm build, which also runs codegen). Common. APP=examples/<name>"
+description = "Build the app (pnpm build, which also runs codegen). Common. APP=<name>"
 depends = ["app:install"]
-dir = "{{config_root}}/{{env.APP}}"
+dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm build"
 
 [tasks."app:verify"]
-description = "Check the app (lunora verify). Common. APP=examples/<name>"
+description = "Check the app (lunora verify). Common. APP=<name>"
 depends = ["app:build"]
-dir = "{{config_root}}/{{env.APP}}"
+dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "Run the app's dev server (pnpm dev). Common. APP=examples/<name>"
+description = "Run the app's dev server (pnpm dev). Common. APP=<name>"
 depends = ["app:install"]
-dir = "{{config_root}}/{{env.APP}}"
+dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm dev"
 
 # Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
 
 [tasks."app:generate"]
-description = "Regenerate Lunora code after a schema change (pnpm codegen). Common. APP=examples/<name>"
+description = "Regenerate Lunora code after a schema change (pnpm codegen). Common. APP=<name>"
 depends = ["app:install"]
-dir = "{{config_root}}/{{env.APP}}"
+dir = "{{config_root}}/examples/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."apps:verify"]
 description = "Run app:verify on every app in examples/. Common"
-run = "for d in examples/*/; do APP=${d%/} mise run app:verify || exit 1; done"
+run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
