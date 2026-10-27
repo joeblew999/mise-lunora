@@ -7,6 +7,14 @@ pnpm = "11.15.0"
 [env]
 APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
+# Every task here is common: the same call into every app in examples/.
+# Templates (lunora init -t, from anolilab/lunora templates/, 14 in all), checked 2026-10-27:
+# - 12 have dev, build, codegen and deploy, so they fit these tasks.
+# - standalone has no build (a Worker only); expo has no dev or build (Expo's own tooling). Don't add them.
+# - The chain relies on build running codegen. Confirmed only for the two in examples/ (tanstack-start-react,
+#   tanstack-start-react-rspack). Check that first for any other template you add.
+# - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
+
 [tasks."app:create"]
 description = "Common for templates in anolilab/lunora templates/ (lunora init -t)."
 dir = "{{config_root}}/examples"
