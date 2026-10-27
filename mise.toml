@@ -1,0 +1,6 @@
+[tools]
+node = "24.16"
+pnpm = "11.15.0"
+# Exact alpha pin: npm's `latest` tag for lunorash is a 0.0.1 placeholder.
+"npm:lunorash" = "1.0.0-alpha.437"
+"npm:wrangler" = "4.153.0"
