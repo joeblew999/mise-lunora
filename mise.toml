@@ -40,8 +40,8 @@ run = 'lunora init "$APP" -t "$APP" -y'
 # The chain, in order: install → build → verify. Each runs the one before it. (app:dev needs only install.)
 # install: everything needs node_modules.
 # build: runs codegen itself in every app in examples/, and writes framework files (TanStack's routeTree.gen.ts).
-# verify: after build; type-checking before routeTree.gen.ts exists fails. Passes even with no
-#   generated code, so on its own it proves nothing.
+# verify: after build; it fails without the generated code (lunora/_generated, and TanStack's
+#   routeTree.gen.ts), which only build writes.
 # What the same call runs differs per app: build is lunora codegen + vite build (tanstack-start-react)
 #   or rsbuild build, whose Lunora plugin runs codegen (the rspack apps); dev is vite or rsbuild dev.
 
@@ -77,7 +77,8 @@ description = "Verify the app if its lunora/ has uncommitted changes (the end-of
 dir = "{{config_root}}/examples/{{env.APP}}"
 run = """
 if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
-[ -d node_modules ] || pnpm install
+# A fresh clone has no generated code yet, and verify fails without it: build once first.
+[ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
 pnpm lunora verify
 """
 
