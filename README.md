@@ -36,6 +36,10 @@ In chat the plugin's skills don't load; read them from
 - Don't write Lunora code from memory. Load the skill `lunora:lunora` routes you to first
   (`lunora-functions` for `lunora/`, `lunora-realtime` for the client).
 - Use the `lunora_*` MCP tools (Code sessions only): the docs, and a look inside the real app.
+- Everything Lunora Studio shows (`/__lunora` while `app:dev` runs) you can read too: Studio calls
+  `POST /_lunora/rpc` with `{"functionPath":"__lunora_admin__:<name>"}` and `/_lunora/admin/*`,
+  using `LUNORA_ADMIN_TOKEN` from the app's `.dev.vars` as a Bearer token. Some of these write
+  (`runSql`, `deleteRows`, ...): ask first.
 - End of every turn: in a Code session a Stop hook runs `mise run app:check`. In chat, run it
   yourself.
 
