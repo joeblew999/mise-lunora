@@ -7,9 +7,11 @@
 #      That runs install, then build, then verify, in that order.
 #   3. Or run it:             mise run app:dev
 #   New app? Pick its name in step 1, then: mise run app:create
-#   Just want to see it work: mise run demo
+#   Just want to see it work: mise run global:demo
 #
-# app:* tasks work on the app picked in step 1. apps:* tasks and demo don't use it.
+# Two kinds of task, and the name says which:
+#   app:*     work on the app picked in step 1.
+#   global:*  don't use it: they work on every app, or on a fixed one.
 # `mise tasks` lists every command.
 
 # The tools. mise installs these; the apps bring everything else themselves.
@@ -23,11 +25,13 @@ node = "24.16"
 # When you upgrade Lunora, change the version in all of these places, then run pnpm install in each app:
 #   - here (Lunora's Claude plugin uses this version too)
 #   - "lunorash" in each examples/<app>/package.json
-# `mise run apps:versions` tells you if any of them don't match.
+# `mise run global:versions` tells you if any of them don't match.
 "npm:lunorash" = "1.0.0-alpha.437"
 # No wrangler (Cloudflare's tool) here on purpose: each app installs its own, and uses that one.
 
 # Which app the app:* tasks work on (APP) is set in mise.local.toml, and only there.
+
+# ---- app:* tasks: the app picked in mise.local.toml ----
 
 # Makes a new app in examples/ from one of Lunora's 14 templates. Checked on 2026-10-27:
 #   - Works with these commands: tanstack-start-react, tanstack-start-react-rspack, rspack-react
@@ -109,9 +113,11 @@ run = """
 exec pnpm exec lunora mcp serve
 """
 
+# ---- global:* tasks: every app, or a fixed one; mise.local.toml doesn't matter ----
+
 # Checks the Lunora version matches in every place listed at the top.
-[tasks."apps:versions"]
-description = "All apps (ignores the current app): fail if lunorash differs between mise.toml and any app"
+[tasks."global:versions"]
+description = "Global, every app: fail if lunorash differs between mise.toml and any app"
 dir = "{{config_root}}"
 run = '''
 node -e '
@@ -130,12 +136,12 @@ console.log(`lunorash ${want} everywhere (${Object.keys(found).length + 1} place
 '''
 
 # Runs verify on every app in examples/.
-[tasks."apps:verify"]
-description = "All apps (ignores the current app): app:verify on each. Runs apps:versions first"
-depends = ["apps:versions"]
+[tasks."global:verify"]
+description = "Global, every app: app:verify on each. Runs global:versions first"
+depends = ["global:versions"]
 run = "for d in examples/*/; do APP=$(basename $d) mise run app:verify || exit 1; done"
 
 # Proves everything works on one known-good app.
-[tasks."demo"]
-description = "Always rspack-react (ignores the current app): prove everything works (install, build, verify)"
+[tasks."global:demo"]
+description = "Global, always rspack-react: prove everything works (install, build, verify)"
 run = "APP=rspack-react mise run app:verify"
