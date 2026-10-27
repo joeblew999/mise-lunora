@@ -125,5 +125,8 @@ run = """
 if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP lunora/ unchanged, skipped"; exit 0; fi
 # A fresh clone has no generated code yet, and verify fails without it: build once first.
 [ -d lunora/_generated ] || { pnpm install && pnpm build; } >&2
+# verify typechecks against lunora/_generated but doesn't rewrite it. Without a dev server
+# running, that code is from before your change, so regenerate it first.
+pnpm codegen >&2
 pnpm lunora verify
 """

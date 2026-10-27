@@ -5,6 +5,7 @@ export default defineSchema({
     messages: defineTable({
         channelId: v.string(),
         text: v.string(),
+        author: v.optional(v.string()),
     })
         .shardBy("channelId")
         .index("by_channel", ["channelId"]),

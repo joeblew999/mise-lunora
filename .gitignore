@@ -3,3 +3,6 @@
 
 # The app you're working on (APP), for this machine only. See [env] in mise.toml.
 mise.local.toml
+
+# Written by `lunora advisor` in each app.
+examples/*/lunora.advisor.map.json
