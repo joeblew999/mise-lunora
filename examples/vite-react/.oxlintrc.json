@@ -1,9 +1,0 @@
-{
-    "ignorePatterns": [
-        "lunora/_generated/",
-        "lunora/.lunora-schema.json",
-        "lunora.advisor.map.json",
-        ".lunora/",
-        ".wrangler/"
-    ]
-}

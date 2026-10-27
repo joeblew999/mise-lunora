@@ -5,10 +5,10 @@ pnpm = "11.15.0"
 "npm:wrangler" = "4.153.0"
 
 [env]
-APP = "{{ get_env(name='APP', default='examples/vite-react') }}" # APP=examples/tanstack-start-react mise run app:dev
+APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
 [tasks."app:create"]
-description = "Common for templates in anolilab/lunora templates/ (lunora init -t). Not vite-react: that is create-vite + a Lunora layer (lunora init app -y)"
+description = "Common for templates in anolilab/lunora templates/ (lunora init -t)."
 dir = "{{config_root}}/examples"
 run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
@@ -26,7 +26,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."app:build"]
-description = "Common: the app's build script, same name in every app; what it runs differs (vite-react: tsc + vite build; tanstack-start-react: lunora codegen + vite build)"
+description = "Common: the app's build script, same name in every app; what it runs differs (tanstack-start-react: lunora codegen + vite build; rspack: rsbuild build, whose Lunora plugin runs codegen)"
 depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"

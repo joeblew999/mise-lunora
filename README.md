@@ -17,17 +17,17 @@ A task goes in `mise.toml` only if it is truly common: it makes the same call in
 
 The calls each task makes, and what they run in each app:
 
-| Task | Call | vite-react | tanstack-start-react | tanstack-start-react-rspack |
-|---|---|---|---|---|
-| `app:install` | `pnpm install` | same | same | same |
-| `app:generate` | `pnpm codegen` | lunora codegen | lunora codegen | lunora codegen |
-| `app:build` | `pnpm build` | tsc -b && vite build | lunora codegen && vite build | rsbuild build |
-| `app:verify` | `pnpm lunora verify` | same | same | same |
-| `app:dev` | `pnpm dev` | vite (5173) | vite (5173) | rsbuild dev (3000) |
-| `app:create` | `lunora init <t> -t <t>` | not this way: `lunora init app -y` | yes | yes |
+| Task | Call | tanstack-start-react | tanstack-start-react-rspack |
+|---|---|---|---|
+| `app:install` | `pnpm install` | same | same |
+| `app:generate` | `pnpm codegen` | lunora codegen | lunora codegen |
+| `app:build` | `pnpm build` | lunora codegen && vite build | rsbuild build (its Lunora plugin runs codegen) |
+| `app:verify` | `pnpm lunora verify` | same | same |
+| `app:dev` | `pnpm dev` | vite (5173) | rsbuild dev (3000) |
+| `app:create` | `lunora init <t> -t <t>` | yes | yes |
 
-`-t` templates come from `templates/` in the Lunora repo, at the ref matching the CLI version.
-The default app is different: Vite's own starter (`create-vite`) plus a Lunora layer.
+Only templates from `templates/` in the Lunora repo (`lunora init -t`) go in `examples/`. Plain
+`lunora init app -y` gives Vite's own starter plus a Lunora layer instead, so it is not used.
 
 If a new template lacks one of these scripts, that task is not common for it: fix that before adding
 the template, rather than special-casing it in `mise.toml`.
