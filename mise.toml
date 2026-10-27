@@ -21,7 +21,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."app:build"]
-description = "App-specific: the app's own build script (vite-react: tsc + vite build; tanstack-start-react: lunora codegen + vite build)"
+description = "Common: the app's build script, same name in every app; what it runs differs (vite-react: tsc + vite build; tanstack-start-react: lunora codegen + vite build)"
 depends = ["app:generate"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
@@ -33,7 +33,7 @@ dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "App-specific: the app's own dev script (vite in both apps so far)"
+description = "Common: the app's dev script, same name in every app (vite in both so far)"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
