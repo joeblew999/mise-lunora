@@ -130,3 +130,12 @@ if [ -z "$(git status --porcelain -- lunora)" ]; then echo "app:check: $APP luno
 pnpm codegen >&2
 pnpm lunora verify
 """
+
+# Lunora's MCP server for the app, which .mcp.json starts for Claude: the Lunora docs, plus the
+# app's functions, tables, queries and dev-server logs. Read-only. The app tools need
+# app:dev running; the docs tools don't. `raw` keeps mise from touching the stdio it talks over.
+[tasks."app:mcp"]
+description = "Lunora MCP server for the app (Claude starts this via .mcp.json). APP=<name>"
+dir = "{{config_root}}/examples/{{env.APP}}"
+raw = true
+run = "pnpm exec lunora mcp serve"

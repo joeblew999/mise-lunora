@@ -8,7 +8,8 @@ Everything that matters is in `mise.toml`.
 
 **Open it in Claude Code and it sets itself up.** When a Claude Code session (Claude Cloud
 included) starts with this repo as its project, a start-up hook installs mise, the pinned tools
-and Lunora's Claude plugin. Just say what you want to work on.
+and Lunora's Claude plugin (its skills), and `.mcp.json` adds Lunora's MCP server (the docs,
+and a look inside the running app). Just say what you want to work on.
 
 By hand (a claude.ai chat, the phone app, or the Mac):
 

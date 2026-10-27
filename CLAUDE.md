@@ -37,6 +37,19 @@ Before writing in an app's `lunora/` or its client code, load the skill the `lun
 skill routes you to (`lunora-functions` for schema and server functions, `lunora-realtime`
 for the client side) and follow it.
 
+## Lunora's MCP server: docs and the running app
+
+`.mcp.json` starts Lunora's MCP server (`mise run app:mcp`) for the current app. Its tools
+are named `lunora_*`. Use them:
+- `lunora_search_docs` / `lunora_get_doc`: Lunora's current docs, for anything the skills
+  don't cover.
+- `lunora_list_functions`, `lunora_list_tables`, `lunora_run_query`, `lunora_dev_logs`: look
+  at the real app instead of guessing. These need the dev server, so start
+  `mise run app:dev` in the background first.
+- `lunora_explain_error`: what a Lunora error code means.
+
+It's read-only. In a chat session it isn't loaded: run `lunora` CLI commands in the app's folder instead.
+
 ## Git
 
 Always commit straight to `main` and push. No branches, no pull requests.
