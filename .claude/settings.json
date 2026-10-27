@@ -4,5 +4,14 @@
       "source": { "source": "github", "repo": "anolilab/lunora", "ref": "lunorash@1.0.0-alpha.437" }
     }
   },
-  "enabledPlugins": { "lunora@lunora": true }
+  "enabledPlugins": { "lunora@lunora": true },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "sh \"$(git rev-parse --show-toplevel)/.claude/install-plugin.sh\"", "timeout": 180 }
+        ]
+      }
+    ]
+  }
 }

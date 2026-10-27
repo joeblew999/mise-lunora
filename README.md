@@ -10,3 +10,7 @@ Everything that matters is in `mise.toml`.
 mise install
 mise tasks
 ```
+
+Claude gets Lunora's plugin automatically: a start-up hook in `.claude/settings.json` installs it
+for this repo (Mac or Claude cloud). Start Claude inside `examples/<app>` when working on an app,
+so the plugin's `lunora verify` check runs at the end of each turn.
