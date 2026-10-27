@@ -16,7 +16,7 @@ If both are true, say "Setup ran" and carry on.
 If either is missing, the session did not start in this repo (for example it started empty
 and the repo was cloned afterwards). Then:
 
-- Tell Gerard straight away, in one line, that the setup didn't run and why.
+- Tell the developer straight away, in one line, that the setup didn't run and why.
 - Run the hooks yourself, from the repo root:
   `sh .claude/setup-tools.sh && sh .claude/install-plugin.sh`
 - Put mise on PATH for every later command:
