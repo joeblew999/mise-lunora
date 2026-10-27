@@ -7,6 +7,23 @@ pnpm = "11.15.0"
 [env]
 APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP=examples/tanstack-start-react mise run app:dev
 
+# The two ways to use this repo, as runnable demos. Run both to prove they work.
+# 1. An app already in examples/: set APP to its folder.
+# 2. A template not in examples/ yet: set TEMPLATE to its name, then use it like 1.
+
+[tasks."demo:existing-app"]
+description = "Way 1: APP=examples/rspack-react mise run app:verify"
+run = "APP=examples/rspack-react mise run app:verify"
+
+[tasks."demo:new-template"]
+description = "Way 2: TEMPLATE=tanstack-start-solid mise run app:create, then app:verify on it; removes it afterwards"
+dir = "{{config_root}}"
+run = """
+trap 'rm -rf examples/tanstack-start-solid' EXIT
+TEMPLATE=tanstack-start-solid mise run app:create
+APP=examples/tanstack-start-solid mise run app:verify
+"""
+
 # Every task here is common: the same call into every app in examples/.
 # Templates (lunora init -t, from anolilab/lunora templates/, 14 in all), checked 2026-10-27:
 # - 12 have dev, build, codegen and deploy, so they fit these tasks.
