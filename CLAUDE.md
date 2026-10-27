@@ -1,26 +1,26 @@
 # CLAUDE.md
 
-## First: run the setup, every session
+## Setup: automatic in a Code session
 
-From the repo root, before anything else:
+In a Claude Code session (the Code tab's repo picker, or `claude` run in the clone) the
+SessionStart hook in `.claude/settings.json` runs `.claude/setup.sh` before your first turn.
+It installs mise, the tools pinned in `mise.toml` and Lunora's Claude plugin. You can tell it
+worked: the `lunora:*` skills are in your skill list and `mise` is on your PATH. Then there is
+nothing to do. Don't run the setup again.
+
+Run it by hand only when:
+- the `lunora:*` skills are missing. That means a claude.ai chat session (including the phone
+  app), where hooks never fire. Chat is a normal way to work on this repo, so don't tell the
+  developer to switch. In chat the plugin's skills don't load either: read them from
+  `~/.claude/plugins/cache/lunora/lunora/*/skills/` when needed.
+- `mise.toml` changed during the session (for example after a pull), so new tools get installed.
 
 ```sh
 sh .claude/setup.sh
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 ```
 
-It installs mise, the tools pinned in `mise.toml` and
-Lunora's Claude plugin, then prints what is installed and ends with `setup OK` or
-`setup INCOMPLETE`. It is safe to run when everything is already there. Show the developer
-its output. Nothing in this repo works without it.
-
-Why by hand: the SessionStart hook in `.claude/settings.json` only fires when Claude Code
-starts with this repo as its project (the Code tab's repo picker, or `claude` run in the
-clone). A session started from a claude.ai chat, including the phone app, never runs it.
-Chat is a normal way to work on this repo, so don't tell the developer to switch.
-
-In a chat session the plugin's skills don't load. Read them from
-`~/.claude/plugins/cache/lunora/lunora/*/skills/` when needed.
+It's safe to run again. It ends with `setup OK` or `setup INCOMPLETE`. Show the developer its output.
 
 ## End of every turn: check the app
 
