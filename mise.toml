@@ -16,7 +16,7 @@ APP = "{{ get_env(name='APP', default='examples/tanstack-start-react') }}" # APP
 # - Plain `lunora init app -y` is not from templates/ (Vite's starter + a Lunora layer), so it is not used.
 
 [tasks."app:create"]
-description = "TEMPLATE=tanstack-start-solid mise run app:create → examples/tanstack-start-solid. Common for templates in anolilab/lunora templates/ (lunora init -t)"
+description = "Create examples/<template> from a Lunora template. Common. TEMPLATE=tanstack-start-solid mise run app:create"
 dir = "{{config_root}}/examples"
 run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 
@@ -25,26 +25,28 @@ run = 'lunora init "$TEMPLATE" -t "$TEMPLATE" -y'
 # build: runs codegen itself in every app in examples/, and writes framework files (TanStack's routeTree.gen.ts).
 # verify: after build; type-checking before routeTree.gen.ts exists fails. Passes even with no
 #   generated code, so on its own it proves nothing.
+# What the same call runs differs per app: build is lunora codegen + vite build (tanstack-start-react)
+#   or rsbuild build, whose Lunora plugin runs codegen (the rspack apps); dev is vite or rsbuild dev.
 
 [tasks."app:install"]
-description = "APP=examples/<name> mise run app:install (APP defaults to examples/tanstack-start-react). Common: pnpm install"
+description = "Install the app (pnpm install). Common. APP=examples/<name>, default tanstack-start-react"
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm install"
 
 [tasks."app:build"]
-description = "Common: the app's build script, same name in every app; what it runs differs (tanstack-start-react: lunora codegen + vite build; the rspack apps: rsbuild build, whose Lunora plugin runs codegen)"
+description = "Build the app (pnpm build, which also runs codegen). Common. APP=examples/<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm build"
 
 [tasks."app:verify"]
-description = "Common: lunora verify, the same command in every Lunora app"
+description = "Check the app (lunora verify). Common. APP=examples/<name>"
 depends = ["app:build"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm lunora verify"
 
 [tasks."app:dev"]
-description = "Common: the app's dev script, same name in every app; what it runs and its port differ per app"
+description = "Run the app's dev server (pnpm dev). Common. APP=examples/<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm dev"
@@ -52,11 +54,11 @@ run = "pnpm dev"
 # Not in the chain: build already runs codegen in every app. Use it on its own, e.g. after a schema change.
 
 [tasks."app:generate"]
-description = "Common: the app's codegen script, lunora codegen in every app"
+description = "Regenerate Lunora code after a schema change (pnpm codegen). Common. APP=examples/<name>"
 depends = ["app:install"]
 dir = "{{config_root}}/{{env.APP}}"
 run = "pnpm codegen"
 
 [tasks."apps:verify"]
-description = "Common: app:verify on every app in examples/"
+description = "Run app:verify on every app in examples/. Common"
 run = "for d in examples/*/; do APP=${d%/} mise run app:verify || exit 1; done"
