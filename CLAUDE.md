@@ -24,22 +24,18 @@ plugin's skills from `~/.claude/plugins/cache/lunora/lunora/*/skills/`.
 
 ## Working on an app
 
-- One app at a time: `examples/<APP>`, default `tanstack-start-react`. For another app, set
-  `APP` in `mise.local.toml` first (see `[env]` in `mise.toml`). `mise tasks` lists the commands.
+- `mise.toml` is the source of truth for the apps and their commands: which app is current,
+  how to switch, what each task does. Read it there; `mise tasks` lists them.
 - Work only in `examples/<APP>`, never in a scratch folder: mise, the hooks and the MCP server
   only work inside this repo. Changing an example is fine; `git checkout -- examples/<APP>`
-  undoes it. `mise run app:create` refuses to overwrite an existing app.
+  undoes it.
 - Don't write Lunora code from memory. Load the skill `lunora:lunora` routes you to first
   (`lunora-functions` for `lunora/`, `lunora-realtime` for the client).
-- Lunora's MCP server (`.mcp.json`, read-only, Code sessions only) has the `lunora_*` tools:
-  `lunora_search_docs` for the docs, and `lunora_list_functions`, `lunora_run_query`,
-  `lunora_dev_logs` and `lunora_explain_error` to look at the real app. The app tools need
-  `mise run app:dev` running in the background.
+- Use the `lunora_*` MCP tools (Code sessions only): the docs, and a look inside the real app.
 
 ## End of every turn: check the app
 
-In a Code session a Stop hook runs `mise run app:check`, which verifies the app if its
-`lunora/` changed, and blocks the turn on errors. In chat, run it yourself.
+In a Code session a Stop hook runs `mise run app:check`. In chat, run it yourself.
 
 ## Git
 

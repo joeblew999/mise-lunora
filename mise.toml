@@ -45,6 +45,7 @@ run = "APP=rspack-react mise run app:verify"
 #     and tanstack-start-solid. The other templates have the right scripts but haven't been tried.
 #   - Don't use standalone (it can't build) or expo (it uses its own tools instead).
 #   - Always pick a template. Plain `lunora init` makes a different kind of app.
+#   - It won't overwrite an app that already exists. To undo changes to one, use git.
 [tasks."app:create"]
 description = "Create examples/<APP> from the Lunora template of that name. APP=tanstack-start-solid"
 dir = "{{config_root}}/examples"
